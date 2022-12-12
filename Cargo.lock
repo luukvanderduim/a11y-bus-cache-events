@@ -3,11 +3,10 @@
 version = 3
 
 [[package]]
-name = "a11y-cache-events"
+name = "a11y-bus-cache-events"
 version = "0.1.0"
 dependencies = [
  "atspi",
- "futures-lite",
  "tokio",
  "tokio-stream",
 ]
@@ -118,8 +117,7 @@ dependencies = [
 [[package]]
 name = "atspi"
 version = "0.3.10"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "db5e1f70f28c52ffd68d18b2c3653f850f90b7e5acc753aff03a7095d5efd58d"
+source = "git+https://github.com/luukvanderduim/atspi?branch=event-filter-fix#9fd03483ebb3a76ca0d14f6d3a2236b5a6fb1e09"
 dependencies = [
  "async-recursion",
  "async-trait",
