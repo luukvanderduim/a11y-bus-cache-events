@@ -1,0 +1,12 @@
+[package]
+name = "a11y-bus-cache-events"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+atspi = { version = "0.3.10", features = ["tokio"]}
+tokio = { version = "1.23.0", features = ["full"]} 
+tokio-stream = "0.1.11"
+
