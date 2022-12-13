@@ -1,4 +1,7 @@
-use atspi::zbus::MatchRule;
+use atspi::zbus::{
+  MatchRule,
+  MessageType,
+};
 use std::error::Error;
 use tokio_stream::StreamExt;
 
@@ -35,30 +38,34 @@ async fn main() -> Result<(), Box<dyn Error>> {
         panic!("Could not register event: {e:?}");
     }
 
-    let rule_add = MatchRule::builder()
-        .interface("org.a11y.atspi.Cache")?
-        .build();
     let rule_rem = MatchRule::builder()
+        .msg_type(MessageType::Signal)
         .interface("org.a11y.atspi.Cache")?
         .member("RemoveAccessible")?
         .build();
+    let rule_add = MatchRule::builder()
+        .msg_type(MessageType::Signal)
+        .interface("org.a11y.atspi.Cache")?
+        .member("AddAccessible")?
+        .build();
     let rule_avail = MatchRule::builder()
+        .msg_type(MessageType::Signal)
         .interface("org.a11y.atspi.Socket")?
         .build();
 
     let rule_reg = MatchRule::builder()
+        .msg_type(MessageType::Signal)
         .interface("org.a11y.atspi.Registry")?
         .build();
 
     let rule_mse = MatchRule::builder()
-        .interface("org.a11y.atspi.Event.Object.TextCaretMoved")?
+        .msg_type(MessageType::Signal)
+        .interface("org.a11y.atspi.Event.Object")?
+        .member("TextCaretMoved")?
         .build();
 
-    let a11y_bus = atspi::Connection::open().await?;
-    let a11y_dbus_connection = a11y_bus.inner().connection();
-
     // For the FreeDesktop Org. primary bus fnctionality
-    let dbus_proxy = atspi::zbus::fdo::DBusProxy::new(a11y_dbus_connection).await?;
+    let dbus_proxy = atspi::zbus::fdo::DBusProxy::new(registry.connection()).await?;
     println!("DBus Proxy path: {}", dbus_proxy.path());
 
     dbus_proxy.add_match_rule(rule_add).await?;
@@ -67,14 +74,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
     dbus_proxy.add_match_rule(rule_avail).await?;
     dbus_proxy.add_match_rule(rule_mse).await?;
 
-    let mut registry_daemon_stream = registry.event_stream();
+    let registry_daemon_stream = registry.event_stream();
 
     tokio::pin!(registry_daemon_stream);
-
-    while let Some(ev) = (&mut registry_daemon_stream).next().await {
+    while let Some(ev) = registry_daemon_stream.next().await {
         match ev {
             Ok(ev) => println!("My Precious: {}", ev.event_string()),
-            _ => println!("Error on stream -- "),
+            Err(e) => println!("Error on stream -- {:#?}", e),
         };
     }
 
