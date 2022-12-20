@@ -117,6 +117,7 @@ dependencies = [
 [[package]]
 name = "atspi"
 version = "0.3.10"
+source = "git+https://github.com/luukvanderduim/atspi?branch=fully-typed-events#874a66eba5af5dae6bf6bae93759dbd6f437c0cc"
 dependencies = [
  "async-recursion",
  "async-trait",
@@ -133,6 +134,7 @@ dependencies = [
 [[package]]
 name = "atspi-macros"
 version = "0.1.0"
+source = "git+https://github.com/luukvanderduim/atspi?branch=fully-typed-events#874a66eba5af5dae6bf6bae93759dbd6f437c0cc"
 dependencies = [
  "proc-macro2",
  "quote",

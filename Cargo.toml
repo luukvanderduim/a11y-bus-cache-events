@@ -6,8 +6,8 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-#atspi = { git = "https://github.com/luukvanderduim/atspi", branch = "fully-typed-events", features = ["tokio"] } 
-atspi = { path = "../atspi-bare/fully-typed-events/", features = ["tokio"] } 
+atspi = { git = "https://github.com/luukvanderduim/atspi", branch = "fully-typed-events", features = ["tokio"] } 
+#atspi = { path = "../atspi-bare/fully-typed-events/", features = ["tokio"] } 
 
 tokio = { version = "1.23.0", features = ["full"]} 
 tokio-stream = "0.1.11"
