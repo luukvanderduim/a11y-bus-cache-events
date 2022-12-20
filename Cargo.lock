@@ -117,15 +117,27 @@ dependencies = [
 [[package]]
 name = "atspi"
 version = "0.3.10"
-source = "git+https://github.com/luukvanderduim/atspi?branch=event-filter-fix#9fd03483ebb3a76ca0d14f6d3a2236b5a6fb1e09"
 dependencies = [
  "async-recursion",
  "async-trait",
+ "atspi-macros",
  "enumflags2",
  "futures",
+ "quote",
  "serde",
+ "syn",
  "tracing",
  "zbus",
+]
+
+[[package]]
+name = "atspi-macros"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn",
+ "zbus_names",
 ]
 
 [[package]]
