@@ -1,8 +1,11 @@
+use atspi::cache::CacheItem;
 use atspi::events::{CacheEvent, Event};
+use atspi::StateSet;
 
 use atspi::identify::ButtonEvent;
 use atspi::zbus::{fdo::DBusProxy, MatchRule, MessageType};
 use std::error::Error;
+use std::ffi::c_short;
 use tokio_stream::StreamExt;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 4)]
@@ -47,10 +50,39 @@ async fn main() -> Result<(), Box<dyn Error>> {
                     );
                 }
                 Event::Cache(cev) => match cev {
-                    CacheEvent::Add(caev) => println!("Cache Add event: {caev:?}"),
+                    CacheEvent::Add(caev) => {
+                        let item: CacheItem = caev.body;
+                        let CacheItem {
+                            object,
+                            app,
+                            parent,
+                            index,
+                            children,
+                            ifaces,
+                            short_name,
+                            role,
+                            name,
+                            states,
+                        } = item;
+
+                        println!(
+                            "Cache Add:    
+                        object: {object:?}
+                        app: {app:?}
+                        parent: {parent:?}
+                        index in parent {index:?}
+                        number of children: {children:?}
+                        interfaceset: {ifaces:#?}
+                        short name: {short_name},
+                        role: {role:?}
+                        name: {name}
+                        states: {states:#?}  "
+                        );
+                    }
                     CacheEvent::Remove(crev) => println!("Cache remove: {crev:?}"),
                 },
             },
+
             Err(e) => println!("Error on stream -- {e:#?}"),
         };
     }
