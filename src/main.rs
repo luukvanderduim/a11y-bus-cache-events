@@ -50,11 +50,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 }
                 Event::Cache(cev) => match cev {
                     CacheEvent::Add(caev) => {
-                        let item: CacheItem = caev.body;
+                        let item: &CacheItem = caev.item();
                         println!("CacheItem:  {item:#?}")
                     }
                     CacheEvent::Remove(crev) => {
-                        let acc: Accessible = crev.body;
+                        let acc: &Accessible = crev.accessible();
                         println!("Removed Accessible: {acc:?}");
                     }
                 },
