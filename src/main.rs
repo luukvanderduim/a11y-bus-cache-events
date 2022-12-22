@@ -1,11 +1,9 @@
 use atspi::cache::CacheItem;
-use atspi::events::{CacheEvent, Event};
-use atspi::StateSet;
+use atspi::events::{Accessible, CacheEvent, Event};
 
 use atspi::identify::ButtonEvent;
 use atspi::zbus::{fdo::DBusProxy, MatchRule, MessageType};
 use std::error::Error;
-use std::ffi::c_short;
 use tokio_stream::StreamExt;
 
 #[tokio::main(flavor = "multi_thread", worker_threads = 4)]
@@ -22,6 +20,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
     let mouse_rule = MatchRule::builder()
         .msg_type(MessageType::Signal)
         .interface("org.a11y.atspi.Event.Mouse")?
+        .member("Button")?
         .build();
 
     let cache_rule = MatchRule::builder()
@@ -43,7 +42,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 Event::Atspi(aev) => {
                     let button_ev = ButtonEvent::try_from(aev)?;
                     println!(
-                        "The {} button press at: {},{}",
+                        "Button: {} at: {},{}",
                         button_ev.button(),
                         button_ev.x(),
                         button_ev.y()
@@ -52,34 +51,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 Event::Cache(cev) => match cev {
                     CacheEvent::Add(caev) => {
                         let item: CacheItem = caev.body;
-                        let CacheItem {
-                            object,
-                            app,
-                            parent,
-                            index,
-                            children,
-                            ifaces,
-                            short_name,
-                            role,
-                            name,
-                            states,
-                        } = item;
-
-                        println!(
-                            "Cache Add:    
-                        object: {object:?}
-                        app: {app:?}
-                        parent: {parent:?}
-                        index in parent {index:?}
-                        number of children: {children:?}
-                        interfaceset: {ifaces:#?}
-                        short name: {short_name},
-                        role: {role:?}
-                        name: {name}
-                        states: {states:#?}  "
-                        );
+                        println!("CacheItem:  {item:#?}")
                     }
-                    CacheEvent::Remove(crev) => println!("Cache remove: {crev:?}"),
+                    CacheEvent::Remove(crev) => {
+                        let acc: Accessible = crev.body;
+                        println!("Removed Accessible: {acc:?}");
+                    }
                 },
             },
 
