@@ -14,18 +14,19 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let atspi = atspi::Connection::open().await?;
 
-    // atspi.register_event("Cache:Add").await?;
-    // atspi.register_event("Cache:Remove").await?;
+    atspi.register_event("Cache:Add").await?;
+    atspi.register_event("Cache:Remove").await?;
     atspi.register_event("Mouse").await?;
     atspi.register_event("Document").await?;
     atspi.register_event("Window").await?;
+    atspi.register_event("Terminal").await?;
 
-    let mouse_rule = MatchRule::builder()
+    let _mouse_rule = MatchRule::builder()
         .msg_type(MessageType::Signal)
         .interface("org.a11y.atspi.Event.Mouse")?
         .build();
 
-    let _cache_rule = MatchRule::builder()
+    let cache_rule = MatchRule::builder()
         .msg_type(MessageType::Signal)
         .interface("org.a11y.atspi.Cache")?
         .build();
@@ -35,22 +36,28 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .interface("org.a11y.atspi.Event.Document")?
         .build();
 
-    let window_rule = MatchRule::builder()
+    let _window_rule = MatchRule::builder()
         .msg_type(MessageType::Signal)
         .interface("org.a11y.atspi.Event.Window")?
         .build();
 
+    let terminal_rule = MatchRule::builder()
+        .msg_type(MessageType::Signal)
+        .interface("org.a11y.atspi.Event.Terminal")?
+        .build();
+
     let dbus_proxy = DBusProxy::new(atspi.connection()).await?;
-    //dbus_proxy.add_match_rule(mouse_rule).await?;
-    // dbus_proxy.add_match_rule(cache_rule).await?;
+    // dbus_proxy.add_match_rule(mouse_rule).await?;
+    dbus_proxy.add_match_rule(cache_rule).await?;
     dbus_proxy.add_match_rule(document_rule).await?;
-    dbus_proxy.add_match_rule(window_rule).await?;
+    // dbus_proxy.add_match_rule(window_rule).await?;
+    dbus_proxy.add_match_rule(terminal_rule).await?;
 
     let event_stream = atspi.event_stream();
 
     tokio::pin!(event_stream);
-    while let ev = event_stream.next().await.expect("None") {
-        match ev? {
+    while let Ok(ev) = event_stream.next().await.expect("None") {
+        match ev {
             Event::Interfaces(EventInterfaces::Mouse(mse)) => {
                 println!("Mouse event ");
                 //    println!("mse    {mse:#?}");
@@ -63,6 +70,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 println!("win event ");
                 println!("object    {obj:?}");
             }
+            Event::Interfaces(EventInterfaces::Terminal(ter)) => {
+                println!("win event ");
+                println!("object    {ter:?}");
+            }
+            Event::Cache(_) => println!("cache event!!"),
             _ => println!("other event "),
         };
     }
